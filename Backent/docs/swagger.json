@@ -1,0 +1,593 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "EV Charging Platform API",
+    "description": "API documentation for the EV Charging Platform project.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000/api"
+    }
+  ],
+  "paths": {
+    "/signup": {
+      "post": {
+        "summary": "Signup a new user",
+        "operationId": "signupUser",
+        "tags": ["User"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": ["firstName", "lastName", "email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully"
+          },
+          "400": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "summary": "Login user",
+        "operationId": "loginUser",
+        "tags": ["User"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful"
+          },
+          "400": {
+            "description": "Invalid credentials"
+          }
+        }
+      }
+    },
+    "/logout": {
+      "post": {
+        "summary": "Logout user",
+        "operationId": "logoutUser",
+        "tags": ["User"],
+        "responses": {
+          "200": {
+            "description": "Logged out successfully"
+          }
+        }
+      }
+    },
+    "/getCurrentUser": {
+      "get": {
+        "summary": "Get details of current logged-in user",
+        "operationId": "getCurrentUser",
+        "tags": ["User"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "userId": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/vehicle/add": {
+      "post": {
+        "summary": "Add a new vehicle",
+        "operationId": "addVehicle",
+        "tags": ["Vehicle"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "vehicleNumber": {
+                    "type": "string"
+                  },
+                  "vehicleType": {
+                    "type": "string"
+                  }
+                },
+                "required": ["vehicleNumber", "vehicleType"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Vehicle added successfully"
+          },
+          "400": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/v1/vehicle/all": {
+      "get": {
+        "summary": "Get all vehicles of the logged-in user",
+        "operationId": "getVehicles",
+        "tags": ["Vehicle"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of vehicles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "vehicleId": {
+                        "type": "string"
+                      },
+                      "vehicleNumber": {
+                        "type": "string"
+                      },
+                      "vehicleType": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/wallet/create": {
+      "post": {
+        "summary": "Create a new wallet",
+        "operationId": "createWallet",
+        "tags": ["Wallet"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Wallet created successfully"
+          }
+        }
+      }
+    },
+    "/wallet/add": {
+      "post": {
+        "summary": "Add money to the wallet",
+        "operationId": "addMoney",
+        "tags": ["Wallet"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "format": "float"
+                  }
+                },
+                "required": ["amount"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Money added to wallet"
+          }
+        }
+      }
+    },
+    "/v1/bookings/create": {
+      "post": {
+        "summary": "Create a new booking",
+        "operationId": "createBooking",
+        "tags": ["Booking"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "stationId": {
+                    "type": "string",
+                    "description": "ID of the charging station"
+                  },
+                  "chargerNumber": {
+                    "type": "string",
+                    "description": "Number of the charger"
+                  },
+                  "startTime": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Start time of the booking"
+                  },
+                  "noOfHours": {
+                    "type": "integer",
+                    "description": "Number of hours for charging (1-6 hours)"
+                  },
+                  "isPreBooked": {
+                    "type": "boolean",
+                    "description": "Whether this is a pre-booking (requires premium subscription)"
+                  },
+                  "bookingDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Date of the booking"
+                  },
+                  "vehicleId": {
+                    "type": "string",
+                    "description": "ID of the vehicle"
+                  },
+                  "totalAmount": {
+                    "type": "number",
+                    "format": "float",
+                    "description": "Total amount for the booking"
+                  }
+                },
+                "required": ["stationId", "chargerNumber", "startTime", "noOfHours", "bookingDate", "vehicleId", "totalAmount"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Booking created successfully"
+          },
+          "400": {
+            "description": "Invalid input or slot not available"
+          },
+          "403": {
+            "description": "Premium subscription required for pre-booking"
+          }
+        }
+      }
+    },
+    "/v1/bookings/my-bookings": {
+      "get": {
+        "summary": "Get all bookings for the logged-in user",
+        "operationId": "getUserBookings",
+        "tags": ["Booking"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of user's bookings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "bookingId": {
+                        "type": "string"
+                      },
+                      "stationId": {
+                        "type": "string"
+                      },
+                      "chargerNumber": {
+                        "type": "string"
+                      },
+                      "startTime": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "status": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/bookings/details/{bookingId}": {
+      "get": {
+        "summary": "Get specific booking details",
+        "operationId": "getBookingDetails",
+        "tags": ["Booking"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "bookingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Booking details retrieved successfully"
+          },
+          "404": {
+            "description": "Booking not found"
+          }
+        }
+      }
+    },
+    "/v1/bookings/cancel/{bookingId}": {
+      "put": {
+        "summary": "Cancel a booking",
+        "operationId": "cancelBooking",
+        "tags": ["Booking"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "bookingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Booking cancelled successfully"
+          },
+          "400": {
+            "description": "Cannot cancel booking within 1 hour of start time"
+          },
+          "404": {
+            "description": "Booking not found"
+          }
+        }
+      }
+    },
+    "/v1/bookings/check-availability": {
+      "get": {
+        "summary": "Check slot availability",
+        "operationId": "checkSlotAvailability",
+        "tags": ["Booking"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "stationId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "chargerNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startTime",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "noOfHours",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Slot availability check successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "isAvailable": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/bookings/station/{stationId}": {
+      "get": {
+        "summary": "Get all bookings for a specific station",
+        "operationId": "getStationBookings",
+        "tags": ["Booking"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "stationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of station bookings retrieved successfully"
+          }
+        }
+      }
+    },
+    "/v1/bookings/status/{bookingId}": {
+      "put": {
+        "summary": "Update booking status",
+        "operationId": "updateBookingStatus",
+        "tags": ["Booking"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "bookingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": ["pending", "active", "completed", "cancelled"]
+                  }
+                },
+                "required": ["status"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Booking status updated successfully"
+          },
+          "404": {
+            "description": "Booking not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+} 

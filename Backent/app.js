@@ -1,110 +1,69 @@
-// const express = require('express');
-// const cors = require('cors');
-// const dotenv = require('dotenv');
-// const user = require('./models/user');
-// const jwt = require('jsonwebtoken');
-// const cookieParser = require('cookie-parser');
-// // Load environment variables
-// dotenv.config();
-// const app = express();
-
-// // Middleware
-// app.use(cors());
-// app.use(express.json());
-// app.use(cookieParser());
- 
-// // Routes
-// app.post('/api/signup', async (req, res) => {
-//         const { firstName, lastName, email, password } = req.body;
-//         // Check if user already exists
-//         const existingUser = await user.findOne({ email });
-//         if (existingUser) {
-//             return res.status(400).json({ message: 'User already exists' });
-//         }
-
-//         // Create new user
-//         const user = new user({
-//             firstName,
-//             lastName,
-//             email,
-//             password // Note: In production, hash the password before saving
-//         });
-//         await user.save();
-//         res.status(201).json({ message: 'User created successfully' });
-     
-// });
-
-// app.post('/api/login', async (req, res) => {
-//     const {email,password}=req.body;
-//     const User=await user.findOne({email});
-//      if(!User){
-//         return res.status(401).json({message:'Invalid credentials'});
-//      }
-//      if(User.password !== password){
-//         return res.status(401).json({message:'Invalid credentials'});
-//      }
-//      let token= jwt.sign({email,userId:User._id},process.env.JWT_SECRET);
-//      res.cookie("token",token);
-//      console.log(token);
-//      //res.status(200).json({message:'Login successful'});
-//      res.status(200).json({token});
-//      console.log("login successful");
-     
-// });
-// app.post('/api/logout',(req,res)=>{
-//   res.clearCookie("token");
-//   res.status(200).json({message:'Logout successful'});
-
-// })
-
-
- 
-// // Start server
-
-
-// function isLoggedIn(req,res,next){
-//     if(req.cookies.token ==="") {
-//         res.redirect("/login")
-//     }
-//     else{
-//         let data=jwt.verify(req.cookies.token,"secret")
-//         req.user=data;
-//         }
-//     next()
-// }
-// const PORT = process.env.PORT || 5000;
-// app.listen(PORT, () => {
-//     console.log(`Server is running on port ${PORT}`);
-// }); 
-
-
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
-const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
+const cookieParser = require('cookie-parser');
 const userRoutes = require('./routes/userRoutes');
 const connectDB = require('./config/db');
-connectDB(); 
+const vehicleRoutes = require('./routes/vehicleRoutes');
+const stationRoutes = require('./routes/stationRoutes');
+const bookingRoutes = require('./routes/bookingRoutes');
+const walletRoutes = require('./routes/walletRoute');
+const fs = require('fs');
+const path = require('path');
+const swaggerUi = require('swagger-ui-express'); // Add this line
+const swaggerDocument = JSON.parse(fs.readFileSync(path.join(__dirname, 'docs', 'swagger.json'), 'utf8')); // Load your swagger.json file
 
-// Load environment variables
+// Load env vars
 dotenv.config();
 
+// Route files
 const app = express();
 
 // Middleware
 app.use(cors({
     origin: 'http://localhost:5173',
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-
-app.use(express.json());
 app.use(cookieParser());
- 
+app.use(express.json());
 
-app.use('/api', userRoutes);    
+// Mount routes
+app.use('/api', userRoutes);
+app.use('/api/v1/vehicle', vehicleRoutes);
+app.use('/api/stations', stationRoutes);
+app.use('/api/v1/bookings', bookingRoutes);
+app.use('/api/wallet', walletRoutes);
+
+// Serve Swagger UI at /api-docs
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({
+        success: false,
+        message: 'Something went wrong!',
+        error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+});
+
+// Connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log('MongoDB Connected'))
+.catch(err => console.log('MongoDB Connection Error:', err));
 
 const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+
+// run swagger api http://localhost:5000/api-docs/
